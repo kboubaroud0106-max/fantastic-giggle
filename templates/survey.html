@@ -1,0 +1,542 @@
+{% extends "base.html" %}
+
+{% block title %}Questionnaire - Cinémas de Safi{% endblock %}
+
+{% block content %}
+<div class="survey-progress-wrapper glass-card">
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <div class="progress-text">
+        <span id="sectionIndicator" data-translate="section_indicator">Section 1 sur 8</span>
+        <span id="percentIndicator">0% Complété</span>
+    </div>
+</div>
+
+<div class="glass-card">
+    <!-- Language Switcher Selector -->
+    <div class="lang-selector-wrapper" style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; gap: 0.5rem; align-items: center;">
+        <label for="lang-select" style="font-weight: 700; color: var(--primary); font-size: 0.9rem;">
+            🌐 Langue / Language / اللغة :
+        </label>
+        <select id="lang-select" class="form-select" style="width: auto; padding: 0.4rem 2.5rem 0.4rem 1rem;" onchange="switchLanguage(this.value)">
+            <option value="fr">Français</option>
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
+    <div class="survey-intro">
+        <h2 id="survey-title" style="color: var(--primary); font-size: 1.6rem; text-align: center; margin-bottom: 0.75rem;" data-translate="survey_title">
+            Le patrimoine des salles de cinéma fermées de Safi : mémoire, perceptions et perspectives de valorisation
+        </h2>
+        <p id="survey-desc" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem; text-align: justify;" data-translate="survey_desc">
+            Madame, Monsieur, ce questionnaire s'inscrit dans le cadre d'une recherche universitaire portant sur le patrimoine des anciennes salles de cinéma de la ville de Safi. Votre témoignage est précieux : il contribuera à documenter une mémoire collective menacée et à réfléchir à l'avenir de ces lieux. Le questionnaire est anonyme et les réponses seront utilisées à des fins exclusivement scientifiques. Il n'y a pas de bonne ou de mauvaise réponse ; seul compte votre point de vue. Sa durée de remplissage est d'environ 10 à 15 minutes. Nous vous remercions vivement de votre participation.
+        </p>
+    </div>
+
+    <form id="surveyForm" onsubmit="handleFormSubmit(event)">
+        <!-- SECTION A: Profil -->
+        <div class="survey-section active" data-section="A">
+            <h3 class="card-title" data-translate="section_a_title">Section A — Profil du répondant</h3>
+            
+            <div class="form-group">
+                <label class="form-label required" data-translate="q1_title">Q1. Vous êtes :</label>
+                <div class="choices-list">
+                    <div class="choice-item">
+                        <input type="radio" name="q1_gender" id="q1_f" value="Une femme" required>
+                        <label for="q1_f" data-translate="gender_female">Une femme</label>
+                    </div>
+                    <div class="choice-item">
+                        <input type="radio" name="q1_gender" id="q1_m" value="Un homme" required>
+                        <label for="q1_m" data-translate="gender_male">Un homme</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" data-translate="q2_title">Q2. Votre tranche d'âge :</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="radio" name="q2_age_group" id="q2_1" value="Moins de 18 ans" required><label for="q2_1" data-translate="age_under18">Moins de 18 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q2_age_group" id="q2_2" value="18 – 24 ans" required><label for="q2_2" data-translate="age_18_24">18 – 24 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q2_age_group" id="q2_3" value="25 – 34 ans" required><label for="q2_3" data-translate="age_25_34">25 – 34 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q2_age_group" id="q2_4" value="35 – 49 ans" required><label for="q2_4" data-translate="age_35_49">35 – 49 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q2_age_group" id="q2_5" value="50 – 64 ans" required><label for="q2_5" data-translate="age_50_64">50 – 64 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q2_age_group" id="q2_6" value="65 ans et plus" required><label for="q2_6" data-translate="age_over65">65 ans et plus</label></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="q3_neighborhood" class="form-label" data-translate="q3_title">Q3. Votre quartier de résidence à Safi :</label>
+                <input type="text" id="q3_neighborhood" name="q3_neighborhood" class="form-input" data-translate-placeholder="q3_placeholder" placeholder="Ex: Plateau, Medina, Biada...">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" data-translate="q4_title">Q4. Depuis combien de temps résidez-vous à Safi ?</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="radio" name="q4_residence_duration" id="q4_1" value="Depuis ma naissance" required><label for="q4_1" data-translate="dur_birth">Depuis ma naissance</label></div>
+                    <div class="choice-item"><input type="radio" name="q4_residence_duration" id="q4_2" value="Plus de 20 ans" required><label for="q4_2" data-translate="dur_over20">Plus de 20 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q4_residence_duration" id="q4_3" value="Entre 10 et 20 ans" required><label for="q4_3" data-translate="dur_10_20">Entre 10 et 20 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q4_residence_duration" id="q4_4" value="Entre 5 et 10 ans" required><label for="q4_4" data-translate="dur_5_10">Entre 5 et 10 ans</label></div>
+                    <div class="choice-item"><input type="radio" name="q4_residence_duration" id="q4_5" value="Moins de 5 ans" required><label for="q4_5" data-translate="dur_under5">Moins de 5 ans</label></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" data-translate="q5_title">Q5. Votre niveau d'études :</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="radio" name="q5_education_level" id="q5_1" value="Sans scolarité / primaire" required><label for="q5_1" data-translate="edu_none">Sans scolarité / primaire</label></div>
+                    <div class="choice-item"><input type="radio" name="q5_education_level" id="q5_2" value="Collège" required><label for="q5_2" data-translate="edu_middle">Collège</label></div>
+                    <div class="choice-item"><input type="radio" name="q5_education_level" id="q5_3" value="Lycée / baccalauréat" required><label for="q5_3" data-translate="edu_high">Lycée / baccalauréat</label></div>
+                    <div class="choice-item"><input type="radio" name="q5_education_level" id="q5_4" value="Études supérieures (bac+2 à bac+4)" required><label for="q5_4" data-translate="edu_uni_low">Études supérieures (bac+2 à bac+4)</label></div>
+                    <div class="choice-item"><input type="radio" name="q5_education_level" id="q5_5" value="Études supérieures (bac+5 et plus)" required><label for="q5_5" data-translate="edu_uni_high">Études supérieures (bac+5 et plus)</label></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" data-translate="q6_title">Q6. Votre situation professionnelle :</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_1" value="Élève / étudiant(e)" required><label for="q6_1" data-translate="prof_student">Élève / étudiant(e)</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_2" value="Salarié(e) du secteur privé" required><label for="q6_2" data-translate="prof_private">Salarié(e) du secteur privé</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_3" value="Fonctionnaire / secteur public" required><label for="q6_3" data-translate="prof_public">Fonctionnaire / secteur public</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_4" value="Profession libérale / indépendant(e)" required><label for="q6_4" data-translate="prof_independent">Profession libérale / indépendant(e)</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_5" value="Commerçant(e) / artisan(e)" required><label for="q6_5" data-translate="prof_merchant">Commerçant(e) / artisan(e)</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_6" value="Sans emploi / en recherche" required><label for="q6_6" data-translate="prof_unemployed">Sans emploi / en recherche</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_7" value="Retraité(e)" required><label for="q6_7" data-translate="prof_retired">Retraité(e)</label></div>
+                    <div class="choice-item"><input type="radio" name="q6_profession" id="q6_8" value="Au foyer" required><label for="q6_8" data-translate="prof_housewife">Au foyer</label></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION B: Mémoire et fréquentation -->
+        <div class="survey-section" data-section="B">
+            <h3 class="card-title" data-translate="section_b_title">Section B — Mémoire et fréquentation des salles de cinéma</h3>
+            
+            <div class="form-group">
+                <label class="form-label required" data-translate="q7_title">Q7. Avez-vous déjà fréquenté une ou plusieurs salles de cinéma à Safi ?</label>
+                <div class="choices-list">
+                    <div class="choice-item">
+                        <input type="radio" name="q7_visited_cinema" id="q7_oui" value="Oui">
+                        <label for="q7_oui" data-translate="yes">Oui</label>
+                    </div>
+                    <div class="choice-item">
+                        <input type="radio" name="q7_visited_cinema" id="q7_non" value="Non">
+                        <label for="q7_non" data-translate="q7_no_desc">Non (Si vous cochez Non, le formulaire passera directement à la Section D)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wrapper for sub-questions which can be skipped if Q7 is 'Non' -->
+            <div id="q7_conditional_wrapper">
+                <div class="form-group">
+                    <label class="form-label" data-translate="q8_title">Q8. À quelle(s) période(s) fréquentiez-vous ces salles ? (plusieurs réponses possibles)</label>
+                    <div class="choices-list">
+                        <div class="choice-item"><input type="checkbox" name="q8_periods" id="q8_1" value="Avant 1980"><label for="q8_1" data-translate="p_before1980">Avant 1980</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q8_periods" id="q8_2" value="Années 1980"><label for="q8_2" data-translate="p_1980s">Années 1980</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q8_periods" id="q8_3" value="Années 1990"><label for="q8_3" data-translate="p_1990s">Années 1990</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q8_periods" id="q8_4" value="Années 2000"><label for="q8_4" data-translate="p_2000s">Années 2000</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q8_periods" id="q8_5" value="Années 2010 et après"><label for="q8_5" data-translate="p_2010s">Années 2010 et après</label></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="q9_title">Q9. À l'époque, à quelle fréquence alliez-vous au cinéma à Safi ?</label>
+                    <div class="choices-list">
+                        <div class="choice-item"><input type="radio" name="q9_frequency" id="q9_1" value="Plusieurs fois par semaine"><label for="q9_1" data-translate="f_several_week">Plusieurs fois par semaine</label></div>
+                        <div class="choice-item"><input type="radio" name="q9_frequency" id="q9_2" value="Environ une fois par semaine"><label for="q9_2" data-translate="f_once_week">Environ une fois par semaine</label></div>
+                        <div class="choice-item"><input type="radio" name="q9_frequency" id="q9_3" value="Une à deux fois par mois"><label for="q9_3" data-translate="f_once_month">Une à deux fois par mois</label></div>
+                        <div class="choice-item"><input type="radio" name="q9_frequency" id="q9_4" value="Quelques fois par an"><label for="q9_4" data-translate="f_few_year">Quelques fois par an</label></div>
+                        <div class="choice-item"><input type="radio" name="q9_frequency" id="q9_5" value="Rarement / occasionnellement"><label for="q9_5" data-translate="f_rarely">Rarement / occasionnellement</label></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="q10_title">Q10. Avec qui vous rendiez-vous habituellement au cinéma ? (plusieurs réponses possibles)</label>
+                    <div class="choices-list">
+                        <div class="choice-item"><input type="checkbox" name="q10_companions" id="q10_1" value="Seul(e)"><label for="q10_1" data-translate="c_alone">Seul(e)</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q10_companions" id="q10_2" value="En famille"><label for="q10_2" data-translate="c_family">En famille</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q10_companions" id="q10_3" value="Avec des amis"><label for="q10_3" data-translate="c_friends">Avec des amis</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q10_companions" id="q10_4" value="En couple"><label for="q10_4" data-translate="c_couple">En couple</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q10_companions" id="q10_5" value="Avec des voisins / collègues"><label for="q10_5" data-translate="c_neighbors">Avec des voisins / collègues</label></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="q11_title">Q11. Quels types de films alliez-vous voir principalement ? (plusieurs réponses possibles)</label>
+                    <div class="choices-list">
+                        <div class="choice-item"><input type="checkbox" name="q11_movie_types" id="q11_1" value="Films marocains"><label for="q11_1" data-translate="m_moroccan">Films marocains</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q11_movie_types" id="q11_2" value="Films égyptiens / arabes"><label for="q11_2" data-translate="m_egyptian">Films égyptiens / arabes</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q11_movie_types" id="q11_3" value="Films indiens"><label for="q11_3" data-translate="m_indian">Films indiens</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q11_movie_types" id="q11_4" value="Films américains / occidentaux"><label for="q11_4" data-translate="m_western">Films américains / occidentaux</label></div>
+                        <div class="choice-item"><input type="checkbox" name="q11_movie_types" id="q11_5" value="Films d'action / aventure"><label for="q11_5" data-translate="m_action">Films d'action / aventure</label></div>
+                        <div class="choice-item" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; width: 100%;">
+                                <input type="checkbox" name="q11_movie_types" id="q11_other_chk" value="Autres">
+                                <label for="q11_other_chk" data-translate="other">Autres :</label>
+                            </div>
+                            <input type="text" id="q11_other_input" name="q11_other" class="form-input" style="margin-top: 0.25rem;" data-translate-placeholder="specify_placeholder" placeholder="Précisez...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="q12_memory" class="form-label" data-translate="q12_title">Q12. Décrivez un souvenir marquant lié à votre fréquentation des salles de cinéma de Safi (réponse libre) :</label>
+                    <textarea id="q12_memory" name="q12_memory" class="form-textarea" data-translate-placeholder="q12_placeholder" placeholder="Partagez vos anecdotes, émotions ou souvenirs particuliers..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION C: Connaissance et identification -->
+        <div class="survey-section" data-section="C">
+            <h3 class="card-title" data-translate="section_c_title">Section C — Connaissance et identification des salles</h3>
+            
+            <div class="form-group">
+                <label for="q13_text" class="form-label" data-translate="q13_title">Q13. Citez les noms des salles de cinéma de Safi dont vous vous souvenez (ouvertes ou fermées) :</label>
+                <textarea id="q13_text" name="q13_text" class="form-textarea" data-translate-placeholder="q13_placeholder" placeholder="Ex: Atlantide, Roxy, Regragui, etc..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="q13_table_desc">Pour les salles dont vous vous souvenez, merci de compléter le tableau ci-dessous (autant que possible) :</label>
+                <div style="overflow-x: auto; margin-top: 0.5rem;">
+                    <table class="dynamic-table" id="q13_table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;" data-translate="tbl_col_name">Nom de la salle</th>
+                                <th style="width: 35%;" data-translate="tbl_col_loc">Quartier / localisation</th>
+                                <th style="width: 30%;" data-translate="tbl_col_state">Que sait-on de son état actuel ?</th>
+                                <th style="width: 5%; text-align: center;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="form-input row-cinema-name" data-translate-placeholder="tbl_ex_name" placeholder="Ex: Atlantide"></td>
+                                <td><input type="text" class="form-input row-cinema-loc" data-translate-placeholder="tbl_ex_loc" placeholder="Ex: Centre-ville"></td>
+                                <td><input type="text" class="form-input row-cinema-state" data-translate-placeholder="tbl_ex_state" placeholder="Ex: Fermé, ruiné..."></td>
+                                <td style="text-align: center;"><button type="button" class="btn-icon" onclick="removeCinemaRow(this)">&times;</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" class="btn btn-secondary btn-small" id="btnAddRow" onclick="addCinemaRow()" data-translate="btn_add_cinema">+ Ajouter une salle</button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="q14_title">Q14. Selon vous, que sont devenues la plupart de ces anciennes salles aujourd'hui ? (plusieurs réponses possibles)</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="checkbox" name="q14_what_became" id="q14_1" value="Abandonnées / à l'état de ruine"><label for="q14_1" data-translate="b_abandoned">Abandonnées / à l'état de ruine</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q14_what_became" id="q14_2" value="Transformées en commerces"><label for="q14_2" data-translate="b_shops">Transformées en commerces</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q14_what_became" id="q14_3" value="Transformées en entrepôts / parkings"><label for="q14_3" data-translate="b_parking">Transformées en entrepôts / parkings</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q14_what_became" id="q14_4" value="Démolies"><label for="q14_4" data-translate="b_demolished">Démolies</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q14_what_became" id="q14_5" value="Réaffectées à un autre usage culturel"><label for="q14_5" data-translate="b_cultural">Réaffectées à un autre usage culturel</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q14_what_became" id="q14_6" value="Je ne sais pas"><label for="q14_6" data-translate="dont_know">Je ne sais pas</label></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION D: Pourquoi fermées -->
+        <div class="survey-section" data-section="D">
+            <h3 class="card-title" data-translate="section_d_title">Section D — Selon vous, pourquoi les salles ont-elles fermé ?</h3>
+            
+            <div class="form-group">
+                <label class="form-label" data-translate="q15_title">Q15. Indiquez votre degré d'accord avec les affirmations suivantes concernant les causes de la fermeture des salles de cinéma à Safi :</label>
+                <div style="overflow-x: auto;">
+                    <table class="likert-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="tbl_col_statement">Énoncé</th>
+                                <th style="width: 12%;" data-translate="likert_1">Pas du tout</th>
+                                <th style="width: 12%;" data-translate="likert_2">Plutôt non</th>
+                                <th style="width: 12%;" data-translate="likert_3">Neutre</th>
+                                <th style="width: 12%;" data-translate="likert_4">Plutôt oui</th>
+                                <th style="width: 12%;" data-translate="likert_5">Tout à fait</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set closing_reasons = [
+                                ('q15_1', "La télévision et les chaînes satellitaires ont détourné le public."),
+                                ('q15_2', "Internet, le streaming et le téléchargement ont remplacé la salle."),
+                                ('q15_3', "Le piratage des films a nui aux salles."),
+                                ('q15_4', "Le prix des billets était devenu trop élevé."),
+                                ('q15_5', "Les salles étaient vétustes et mal entretenues."),
+                                ('q15_6', "La qualité ou le choix des films proposés s'est dégradé."),
+                                ('q15_7', "Le sentiment d'insécurité ou la mauvaise réputation des salles."),
+                                ('q15_8', "La hausse de la valeur des terrains a poussé à vendre les salles."),
+                                ('q15_9', "Le manque de soutien des pouvoirs publics à ces salles."),
+                                ('q15_10', "Les habitudes de sortie et de loisirs ont changé.")
+                            ] %}
+                            {% for key, text in closing_reasons %}
+                            <tr>
+                                <td data-translate="{{ key }}_text">{{ text }}</td>
+                                {% for val in ["Pas du tout", "Plutôt non", "Neutre", "Plutôt oui", "Tout à fait"] %}
+                                <td>
+                                    <input type="radio" name="{{ key }}" value="{{ val }}" class="likert-radio">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="q16_main_cause" class="form-label" data-translate="q16_title">Q16. Parmi ces causes, quelle est selon vous la PLUS importante ? Précisez (une seule, réponse libre) :</label>
+                <input type="text" id="q16_main_cause" name="q16_main_cause" class="form-input" data-translate-placeholder="q16_placeholder" placeholder="La cause principale selon vous...">
+            </div>
+        </div>
+
+        <!-- SECTION E: Représentations et attachement -->
+        <div class="survey-section" data-section="E">
+            <h3 class="card-title" data-translate="section_e_title">Section E — Représentations actuelles et attachement</h3>
+            
+            <div class="form-group">
+                <label class="form-label" data-translate="q17_title">Q17. Indiquez votre degré d'accord avec les affirmations suivantes :</label>
+                <div style="overflow-x: auto;">
+                    <table class="likert-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="tbl_col_statement">Énoncé</th>
+                                <th style="width: 12%;" data-translate="likert_1">Pas du tout</th>
+                                <th style="width: 12%;" data-translate="likert_2">Plutôt non</th>
+                                <th style="width: 12%;" data-translate="likert_3">Neutre</th>
+                                <th style="width: 12%;" data-translate="likert_4">Plutôt oui</th>
+                                <th style="width: 12%;" data-translate="likert_5">Tout à fait</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set representation_statements = [
+                                ('q17_1', "Ces anciennes salles me rappellent de bons souvenirs."),
+                                ('q17_2', "Leur fermeture représente une perte pour la ville de Safi."),
+                                ('q17_3', "Leur état actuel me paraît dégradé et désolant."),
+                                ('q17_4', "Je me sens personnellement attaché(e) à ces lieux."),
+                                ('q17_5', "Ces salles font partie de l'identité de Safi."),
+                                ('q17_6', "Les jeunes générations ignorent l'histoire de ces salles.")
+                            ] %}
+                            {% for key, text in representation_statements %}
+                            <tr>
+                                <td data-translate="{{ key }}_text">{{ text }}</td>
+                                {% for val in ["Pas du tout", "Plutôt non", "Neutre", "Plutôt oui", "Tout à fait"] %}
+                                <td>
+                                    <input type="radio" name="{{ key }}" value="{{ val }}" class="likert-radio">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="q18_meaning" class="form-label" data-translate="q18_title">Q18. En un mot ou une expression, que représentent pour vous ces salles fermées aujourd'hui ? (réponse libre) :</label>
+                <input type="text" id="q18_meaning" name="q18_meaning" class="form-input" data-translate-placeholder="q18_placeholder" placeholder="Ex: Nostalgie, Patrimoine gâché, Oubli...">
+            </div>
+        </div>
+
+        <!-- SECTION F: Patrimoine et avenir -->
+        <div class="survey-section" data-section="F">
+            <h3 class="card-title" data-translate="section_f_title">Section F — Patrimoine et avenir des salles</h3>
+            
+            <div class="form-group">
+                <label class="form-label" data-translate="q19_title">Q19. Indiquez votre degré d'accord avec les affirmations suivantes :</label>
+                <div style="overflow-x: auto;">
+                    <table class="likert-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="tbl_col_statement">Énoncé</th>
+                                <th style="width: 12%;" data-translate="likert_1">Pas du tout</th>
+                                <th style="width: 12%;" data-translate="likert_2">Plutôt non</th>
+                                <th style="width: 12%;" data-translate="likert_3">Neutre</th>
+                                <th style="width: 12%;" data-translate="likert_4">Plutôt oui</th>
+                                <th style="width: 12%;" data-translate="likert_5">Tout à fait</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set future_statements = [
+                                ('q19_1', "Ces salles font partie du patrimoine culturel de Safi."),
+                                ('q19_2', "Il faudrait préserver et réhabiliter au moins certaines d'entre elles."),
+                                ('q19_3', "Leur réhabilitation pourrait dynamiser le centre-ville."),
+                                ('q19_4', "Leur valorisation pourrait créer des emplois et des activités."),
+                                ('q19_5', "Je fréquenterais un lieu culturel créé dans une ancienne salle."),
+                                ('q19_6', "Les habitants devraient être associés aux décisions les concernant.")
+                            ] %}
+                            {% for key, text in future_statements %}
+                            <tr>
+                                <td data-translate="{{ key }}_text">{{ text }}</td>
+                                {% for val in ["Pas du tout", "Plutôt non", "Neutre", "Plutôt oui", "Tout à fait"] %}
+                                <td>
+                                    <input type="radio" name="{{ key }}" value="{{ val }}" class="likert-radio">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="q20_title">Q20. Si une ancienne salle de cinéma était réhabilitée, quel usage souhaiteriez-vous y voir ? (plusieurs réponses possibles)</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_1" value="Une salle de cinéma de nouveau en activité"><label for="q20_1" data-translate="u_cinema">Une salle de cinéma de nouveau en activité</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_2" value="Une cinémathèque / lieu de mémoire du cinéma"><label for="q20_2" data-translate="u_cinematheque">Une cinémathèque / lieu de mémoire du cinéma</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_3" value="Une salle de spectacles et de concerts"><label for="q20_3" data-translate="u_concert">Une salle de spectacles et de concerts</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_4" value="Un centre culturel polyvalent"><label for="q20_4" data-translate="u_center">Un centre culturel polyvalent</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_5" value="Une médiathèque / bibliothèque"><label for="q20_5" data-translate="u_library">Une médiathèque / bibliothèque</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_6" value="Un espace de travail partagé pour les jeunes créateurs"><label for="q20_6" data-translate="u_coworking">Un espace de travail partagé pour les jeunes créateurs</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_7" value="Un café culturel / espace de rencontre"><label for="q20_7" data-translate="u_cafe">Un café culturel / espace de rencontre</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q20_desired_usage" id="q20_8" value="Un musée ou un espace d'exposition"><label for="q20_8" data-translate="u_museum">Un musée ou un espace d'exposition</label></div>
+                    <div class="choice-item" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <input type="checkbox" name="q20_desired_usage" id="q20_other_chk" value="Autre">
+                            <label for="q20_other_chk" data-translate="other">Autre :</label>
+                        </div>
+                        <input type="text" id="q20_other_input" name="q20_other" class="form-input" style="margin-top: 0.25rem;" data-translate-placeholder="specify_placeholder" placeholder="Précisez...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="q21_title">Q21. Seriez-vous prêt(e) à soutenir un projet de valorisation de ces salles ? (plusieurs réponses possibles)</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="checkbox" name="q21_support_type" id="q21_1" value="En le fréquentant comme visiteur / public"><label for="q21_1" data-translate="s_visitor">En le fréquentant comme visiteur / public</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q21_support_type" id="q21_2" value="En participant à des actions bénévoles ou associatives"><label for="q21_2" data-translate="s_volunteer">En participant à des actions bénévoles ou associatives</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q21_support_type" id="q21_3" value="En partageant des souvenirs, photos ou documents"><label for="q21_3" data-translate="s_share">En partageant des souvenirs, photos ou documents</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q21_support_type" id="q21_4" value="Par un soutien financier (don, adhésion)"><label for="q21_4" data-translate="s_finance">Par un soutien financier (don, adhésion)</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q21_support_type" id="q21_5" value="Je ne souhaite pas m'impliquer"><label for="q21_5" data-translate="s_not_involved">Je ne souhaite pas m'impliquer</label></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION G: Info et medias -->
+        <div class="survey-section" data-section="G">
+            <h3 class="card-title" data-translate="section_g_title">Section G — Information et médias</h3>
+            
+            <div class="form-group">
+                <label class="form-label required" data-translate="q22_title">Q22. Avez-vous déjà vu, lu ou entendu un contenu (article, reportage, publication) sur les anciennes salles de cinéma de Safi ?</label>
+                <div class="choices-list">
+                    <div class="choice-item">
+                        <input type="radio" name="q22_seen_content" id="q22_oui" value="Oui">
+                        <label for="q22_oui" data-translate="yes">Oui</label>
+                    </div>
+                    <div class="choice-item">
+                        <input type="radio" name="q22_seen_content" id="q22_non" value="Non">
+                        <label for="q22_non" data-translate="q22_no_desc">Non (Si vous cochez Non, vous passerez directement à la question Q24)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="q23_conditional_wrapper">
+                <label class="form-label" data-translate="q23_title">Q23. Si oui, par quel(s) canal/canaux ? (plusieurs réponses possibles)</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="checkbox" name="q23_channels" id="q23_1" value="Presse écrite locale / nationale"><label for="q23_1" data-translate="ch_press">Presse écrite locale / nationale</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q23_channels" id="q23_2" value="Télévision / radio"><label for="q23_2" data-translate="ch_tv">Télévision / radio</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q23_channels" id="q23_3" value="Réseaux sociaux (Facebook, Instagram, TikTok, YouTube…)"><label for="q23_3" data-translate="ch_social">Réseaux sociaux (Facebook, Instagram, TikTok, YouTube…)</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q23_channels" id="q23_4" value="Sites web / blogs"><label for="q23_4" data-translate="ch_web">Sites web / blogs</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q23_channels" id="q23_5" value="Bouche-à-oreille / discussions"><label for="q23_5" data-translate="ch_mouth">Bouche-à-oreille / discussions</label></div>
+                    <div class="choice-item"><input type="checkbox" name="q23_channels" id="q23_6" value="Expositions, événements ou associations locales"><label for="q23_6" data-translate="ch_expo">Expositions, événements ou associations locales</label></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" data-translate="q24_title">Q24. Suivez-vous des pages ou groupes consacrés à la mémoire et au patrimoine de Safi ?</label>
+                <div class="choices-list">
+                    <div class="choice-item"><input type="radio" name="q24_follow_pages" id="q24_oui" value="Oui"><label for="q24_oui" data-translate="yes">Oui</label></div>
+                    <div class="choice-item"><input type="radio" name="q24_follow_pages" id="q24_non" value="Non"><label for="q24_non" data-translate="no">Non</label></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="q25_title">Q25. Indiquez votre degré d'accord avec les affirmations suivantes :</label>
+                <div style="overflow-x: auto;">
+                    <table class="likert-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="tbl_col_statement">Énoncé</th>
+                                <th style="width: 12%;" data-translate="likert_1">Pas du tout</th>
+                                <th style="width: 12%;" data-translate="likert_2">Plutôt non</th>
+                                <th style="width: 12%;" data-translate="likert_3">Neutre</th>
+                                <th style="width: 12%;" data-translate="likert_4">Plutôt oui</th>
+                                <th style="width: 12%;" data-translate="likert_5">Tout à fait</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set media_statements = [
+                                ('q25_1', "On parle trop peu de ces salles dans les médias locaux."),
+                                ('q25_2', "Les réseaux sociaux pourraient aider à faire connaître ce patrimoine."),
+                                ('q25_3', "J'aimerais en savoir plus sur l'histoire de ces salles.")
+                            ] %}
+                            {% for key, text in media_statements %}
+                            <tr>
+                                <td data-translate="{{ key }}_text">{{ text }}</td>
+                                {% for val in ["Pas du tout", "Plutôt non", "Neutre", "Plutôt oui", "Tout à fait"] %}
+                                <td>
+                                    <input type="radio" name="{{ key }}" value="{{ val }}" class="likert-radio">
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION H: Suggestions et fin -->
+        <div class="survey-section" data-section="H">
+            <h3 class="card-title" data-translate="section_h_title">Section H — Suggestions et suite de l'enquête</h3>
+            
+            <div class="form-group">
+                <label for="q26_comments" class="form-label" data-translate="q26_title">Q26. Souhaitez-vous ajouter un commentaire, un souvenir ou une suggestion ? (réponse libre) :</label>
+                <textarea id="q26_comments" name="q26_comments" class="form-textarea" rows="4" data-translate-placeholder="q26_placeholder" placeholder="Votre message..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required" data-translate="q27_title">Q27. Accepteriez-vous d'être recontacté(e) pour un entretien plus approfondi ?</label>
+                <div class="choices-list">
+                    <div class="choice-item">
+                        <input type="radio" name="q27_recontact" id="q27_oui" value="Oui">
+                        <label for="q27_oui" data-translate="yes">Oui</label>
+                    </div>
+                    <div class="choice-item">
+                        <input type="radio" name="q27_recontact" id="q27_non" value="Non">
+                        <label for="q27_non" data-translate="no">Non</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="q27_conditional_wrapper" style="display: none;">
+                <label for="q27_contact_details" class="form-label" data-translate="q27_contact_title">Si oui, vous pouvez laisser un moyen de contact (facultatif) :</label>
+                <input type="text" id="q27_contact_details" name="q27_contact_details" class="form-input" data-translate-placeholder="q27_contact_placeholder" placeholder="Téléphone, e-mail, etc...">
+            </div>
+        </div>
+
+        <!-- Stepper Buttons -->
+        <div class="survey-nav-btns">
+            <button type="button" class="btn btn-secondary" id="btnPrev" onclick="navigateSection(-1)" data-translate="btn_prev" disabled>Précédent</button>
+            <button type="button" class="btn btn-primary" id="btnNext" onclick="navigateSection(1)" data-translate="btn_next">Suivant</button>
+            <button type="submit" class="btn btn-success" id="btnSubmit" style="display: none;" data-translate="btn_submit">Soumettre</button>
+        </div>
+    </form>
+</div>
+
+<!-- Modal Confirmation dialog -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-container" style="max-width: 450px; text-align: center;">
+        <div class="modal-header">
+            <span class="modal-title" data-translate="modal_success_title">Envoi réussi !</span>
+        </div>
+        <div class="modal-body" style="padding: 2rem 1.5rem;">
+            <div style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;">✓</div>
+            <p id="successMessage" style="font-weight: 600; color: var(--text); margin-bottom: 1.5rem;" data-translate="modal_success_desc">Merci ! Votre participation a été enregistrée avec succès.</p>
+            <button class="btn btn-primary" onclick="window.location.reload()" data-translate="btn_reload">Remplir à nouveau</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-notif" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/survey.js') }}"></script>
+{% endblock %}

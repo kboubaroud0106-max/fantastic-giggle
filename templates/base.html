@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Enquête Patrimoine Cinéma Safi{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <!-- University Logo -->
+            <img src="{{ url_for('static', filename='images/logo_fac.png') }}" class="univ-logo" alt="Logo Université Cadi Ayyad - Faculté Polydisciplinaire de Safi">
+            
+            <!-- Institution text block -->
+            <div class="logo-block">
+                <span class="maroc-seal" data-translate="header_univ">Université Cadi Ayyad</span>
+                <span class="university-name" data-translate="header_fac">Faculté Polydisciplinaire de Safi</span>
+                <span class="speciality" data-translate="header_master">Master CMIC : Communication, Médias et Industries Créatives</span>
+            </div>
+
+            <!-- CMIC Master Logo -->
+            <img src="{{ url_for('static', filename='images/logo_master.png') }}" class="master-logo" alt="Logo Master CMIC">
+
+            <!-- Researcher Attribution Badge -->
+            <div class="researcher-badge">
+                <span class="badge-label" data-translate="header_researcher_label">Étudiant chercheur</span>
+                <span class="badge-name">BOUBAROUD Karim</span>
+                <span class="badge-enc" data-translate="header_enc_label">Encadrant : <strong>M. Naim Rachid</strong></span>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="header-nav">
+                {% if session.get('logged_in') %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="nav-btn">Tableau de bord</a>
+                    <a href="{{ url_for('admin_logout') }}" class="nav-btn btn-danger">Déconnexion</a>
+                {% else %}
+                    <a href="{{ url_for('home') }}" class="nav-btn">Formulaire d'enquête</a>
+                    <a href="{{ url_for('admin_login') }}" class="nav-btn btn-alt">Administration</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+        <p>
+            &copy; 2026 — Master CMIC · Faculté Polydisciplinaire de Safi · Université Cadi Ayyad.<br>
+            <small>Mémoire de fin d'études : <em>Le patrimoine des salles de cinéma fermées de Safi</em> · BOUBAROUD Karim · Dir. M. Naim Rachid</small>
+        </p>
+    </footer>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

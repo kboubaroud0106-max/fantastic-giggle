@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord - Administration{% endblock %}
+
+{% block head %}
+<!-- Chart.js local file downloaded in project static/js folder -->
+<script src="{{ url_for('static', filename='js/chart.umd.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2 style="color: var(--primary); font-size: 1.8rem; font-weight: 800;">Tableau de Bord SIC</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Analyse scientifique des anciennes salles de cinéma de Safi</p>
+    </div>
+    
+    <div class="action-buttons-wrap">
+        <button class="btn btn-secondary" onclick="exportData('csv')">Export CSV</button>
+        <button class="btn btn-secondary" onclick="exportData('excel')">Export Excel (XLSX)</button>
+        <button class="btn btn-primary" onclick="generatePdfReport()">Générer Rapport PDF</button>
+    </div>
+</div>
+
+<!-- Tabs to navigate admin panel -->
+<div class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-stats')">Analyses Statistiques</button>
+    <button class="tab-btn" onclick="switchTab('tab-responses')">Liste des Répondants</button>
+    <button class="tab-btn" onclick="switchTab('tab-database')">Sécurité & Base de données</button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+    <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">Filtres d'Analyse Globale</h4>
+    <div class="filter-grid">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 0.8rem;">Sexe :</label>
+            <select id="filter-gender" class="form-select" onchange="loadAnalytics()">
+                <option value="">Tous les genres</option>
+                <option value="Une femme">Femme</option>
+                <option value="Un homme">Homme</option>
+            </select>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 0.8rem;">Âge :</label>
+            <select id="filter-age" class="form-select" onchange="loadAnalytics()">
+                <option value="">Toutes les tranches</option>
+                <option value="Moins de 18 ans">Moins de 18 ans</option>
+                <option value="18 – 24 ans">18 – 24 ans</option>
+                <option value="25 – 34 ans">25 – 34 ans</option>
+                <option value="35 – 49 ans">35 – 49 ans</option>
+                <option value="50 – 64 ans">50 – 64 ans</option>
+                <option value="65 ans et plus">65 ans et plus</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 0.8rem;">Niveau d'études :</label>
+            <select id="filter-education" class="form-select" onchange="loadAnalytics()">
+                <option value="">Tous les niveaux</option>
+                <option value="Sans scolarité / primaire">Sans scolarité / primaire</option>
+                <option value="Collège">Collège</option>
+                <option value="Lycée / baccalauréat">Lycée / baccalauréat</option>
+                <option value="Études supérieures (bac+2 à bac+4)">Études sup (bac+2 à bac+4)</option>
+                <option value="Études supérieures (bac+5 et plus)">Études sup (bac+5 et plus)</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 0.8rem;">Quartier (Recherche) :</label>
+            <input type="text" id="filter-neighborhood" class="form-input" placeholder="Saisir un quartier..." oninput="loadAnalytics()">
+        </div>
+        
+        <div>
+            <button class="btn btn-secondary btn-small" style="width: 100%; margin: 0; padding: 0.65rem 1rem;" onclick="resetFilters()">Réinitialiser</button>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 1: STATISTICS & CHARTS -->
+<div id="tab-stats" class="tab-content active">
+    <!-- METRIC CARDS -->
+    <div class="dashboard-grid">
+        <div class="metric-card">
+            <div class="metric-lbl">Total Questionnaires</div>
+            <div class="metric-val" id="metric-total">{{ stats.total }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-lbl">Aujourd'hui</div>
+            <div class="metric-val" id="metric-today">{{ stats.today }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-lbl">Cette semaine</div>
+            <div class="metric-val" id="metric-week">{{ stats.week }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-lbl">Ce mois</div>
+            <div class="metric-val" id="metric-month">{{ stats.month }}</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-lbl">Taux de complétion</div>
+            <div class="metric-val" id="metric-completion">{{ stats.completion_rate }}%</div>
+        </div>
+    </div>
+
+    <!-- CHARTS GRID -->
+    <div class="charts-grid">
+        <!-- Q1 Gender distribution -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q1. Répartition par Sexe</h3>
+            <div class="chart-container">
+                <canvas id="chart-gender"></canvas>
+            </div>
+        </div>
+        
+        <!-- Q2 Age group distribution -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q2. Répartition par Tranche d'âge</h3>
+            <div class="chart-container">
+                <canvas id="chart-age"></canvas>
+            </div>
+        </div>
+
+        <!-- Q7 Cinema visitation rate -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q7. Fréquentation historique des cinémas de Safi</h3>
+            <div class="chart-container">
+                <canvas id="chart-visited"></canvas>
+            </div>
+        </div>
+
+        <!-- Q8 Periods of attendance -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q8. Périodes de fréquentation active</h3>
+            <div class="chart-container">
+                <canvas id="chart-periods"></canvas>
+            </div>
+        </div>
+        
+        <!-- Q9 Attendance frequency -->
+        <div class="chart-card text-center">
+            <h3 class="chart-title">Q9. Fréquence d'accès historique</h3>
+            <div class="chart-container">
+                <canvas id="chart-frequency"></canvas>
+            </div>
+        </div>
+
+        <!-- Q11 Types of films watched -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q11. Genre cinématographique visionné</h3>
+            <div class="chart-container">
+                <canvas id="chart-movies"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- LIKERT GRAPHS (DIVERGING STACKED BAR FOR LIKERT QUESTION 15, 17, 19) -->
+    <div class="chart-card" style="margin-bottom: 2rem; min-height: 450px;">
+        <h3 class="chart-title">Q15. Degré d'accord sur les causes de fermeture des salles</h3>
+        <div class="chart-container">
+            <canvas id="chart-closing-reasons"></canvas>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3 class="chart-title">Q17. Représentations et sentiment d'attachement</h3>
+            <div class="chart-container">
+                <canvas id="chart-representations"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <h3 class="chart-title">Q19. Valorisation patrimoniale et avenir des lieux</h3>
+            <div class="chart-container">
+                <canvas id="chart-patrimony"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-grid" style="margin-top: 2rem;">
+        <!-- Q20 Desired usage on rehabilitation -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q20. Usages souhaités pour les salles réhabilitées</h3>
+            <div class="chart-container">
+                <canvas id="chart-desired-usage"></canvas>
+            </div>
+        </div>
+
+        <!-- Q21 Level of participation/support -->
+        <div class="chart-card">
+            <h3 class="chart-title">Q21. Engagement pour soutenir la valorisation</h3>
+            <div class="chart-container">
+                <canvas id="chart-support-type"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- OPEN TEXT SEMANTIC ANALYTICS -->
+    <div class="glass-card" style="margin-top: 2rem;">
+        <h3 class="card-title">Analyse Sémantique des Réponses Ouvertes</h3>
+        
+        <div class="form-group">
+            <label class="form-label" for="semantic-question">Sélectionner la question ouverte à analyser :</label>
+            <select id="semantic-question" class="form-select" onchange="loadSemanticAnalysis()" style="max-width: 400px;">
+                <option value="q12">Q12 — Souvenirs marquants liés aux salles de Safi</option>
+                <option value="q13_text">Q13 — Noms des salles dont vous vous souvenez (Texte libre)</option>
+                <option value="q16">Q16 — Causes de fermeture les plus importantes</option>
+                <option value="q18">Q18 — Ce que représentent ces salles fermées (En un mot)</option>
+                <option value="q26">Q26 — Suggestions, commentaires ou souvenirs additionnels</option>
+            </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 2rem; margin-top: 1.5rem;">
+            <div>
+                <h4 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 0.5rem; font-weight: 700;">Nuage de mots interactif</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Les mots-clés les plus récurrents après filtrage des mots vides français. Cliquez sur un mot pour le rechercher dans les verbatims.</p>
+                <div class="wordcloud-container" id="wordcloud">
+                    <!-- Word list rendered in Javascript -->
+                </div>
+            </div>
+            
+            <div>
+                <h4 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 0.5rem; font-weight: 700;">Mots les plus fréquents</h4>
+                <div class="table-responsive" style="max-height: 250px;">
+                    <table class="data-table" id="word-freq-table">
+                        <thead>
+                            <tr>
+                                <th>Mot</th>
+                                <th style="text-align: center;">Fréquence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Javascript values -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: DETAILED RESPONSES TABLE -->
+<div id="tab-responses" class="tab-content">
+    <div class="glass-card">
+        <h3 class="card-title">Registre des Questionnaires Soumis</h3>
+        
+        <div class="search-box-wrapper">
+            <input type="text" id="search-keyword" class="search-input" placeholder="Rechercher par mot-clé (ex: Roxy, Atlantide, nostalgie...)" oninput="loadResponsesTable()">
+            <button class="btn btn-primary" onclick="loadResponsesTable()">Rechercher</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table" id="responses-table">
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">ID</th>
+                        <th style="width: 15%;">Date</th>
+                        <th style="width: 10%;">Genre</th>
+                        <th style="width: 10%;">Âge</th>
+                        <th style="width: 15%;">Quartier</th>
+                        <th style="width: 15%;">Niveau d'études</th>
+                        <th style="width: 12%;">Fréquenté ?</th>
+                        <th style="width: 15%; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- JS rows -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 3: SECURITY & DATABASE SETTINGS -->
+<div id="tab-database" class="tab-content">
+    <div class="database-mgmt-panel">
+        <!-- Database Backups Card -->
+        <div class="mgmt-card">
+            <h3 class="card-title" style="font-size: 1.2rem;">Sauvegardes SQLite</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Le système enregistre automatiquement la base à chaque soumission. Vous pouvez également effectuer une sauvegarde manuelle ou restaurer une version précédente.
+            </p>
+            
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;" onclick="triggerManualBackup()">
+                Créer une sauvegarde maintenant
+            </button>
+            
+            <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                <h4 style="font-size: 0.9rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem;">Importer une sauvegarde (.db)</h4>
+                <form id="uploadBackupForm" onsubmit="handleBackupUpload(event)">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="file" id="backup_file" name="backup_file" accept=".db" class="form-input" style="padding: 0.5rem;" required>
+                        <button type="submit" class="btn btn-secondary btn-small" style="margin: 0;">Importer</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <h4 style="font-size: 0.9rem; color: var(--primary); font-weight: 700; margin-bottom: 0.25rem;">Historique des sauvegardes :</h4>
+                <div class="backup-list-container" id="backups-list">
+                    <!-- JS loaded files -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Password Card -->
+        <div class="mgmt-card">
+            <h3 class="card-title" style="font-size: 1.2rem;">Sécurité Administrateur</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                Modifiez le mot de passe de l'espace d'administration. Veillez à utiliser un mot de passe sécurisé.
+            </p>
+            
+            <form id="passwordForm" onsubmit="handlePasswordUpdate(event)">
+                <div class="form-group">
+                    <label for="old_password" class="form-label">Ancien mot de passe :</label>
+                    <input type="password" id="old_password" class="form-input" placeholder="••••••••" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password" class="form-label">Nouveau mot de passe :</label>
+                    <input type="password" id="new_password" class="form-input" placeholder="Min. 8 caractères" required>
+                </div>
+                
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">Mettre à jour le mot de passe</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- RESPONSE DETAILS MODAL -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <span class="modal-title" id="detail-modal-title">Détail du questionnaire</span>
+            <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="detail-modal-body">
+            <!-- JS dynamic content -->
+        </div>
+    </div>
+</div>
+
+<!-- Notification UI toast -->
+<div class="toast-notif" id="toast"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
